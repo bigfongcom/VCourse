@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.vcourse.mapper.CollectMapper" >
+  <resultMap id="BaseResultMap" type="com.vcourse.po.Collect" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="cid" property="cid" jdbcType="INTEGER" />
+    <result column="sid" property="sid" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    
+    <association property="student"  javaType="com.vcourse.po.Student">
+		<id column="sid" property="id"/>
+		<result column="username" property="username"/>
+		<result column="truename" property="truename"/>
+		<result column="sex" property="sex"/>
+		<result column="mobile" property="mobile"/>
+		<result column="s_thumb" property="thumb"/>
+		<result column="about" property="about"/>
+	</association>
+	
+	<association property="course"  javaType="com.vcourse.po.Course">
+		<id column="cid" property="id"/>
+		<result column="c_title" property="title"/>
+		<result column="c_description" property="description"/>
+		<result column="c_create_time" property="createTime"/>
+		<result column="c_mid" property="mid"/>
+		<result column="c_click" property="click"/>
+		<result column="c_thumb" property="thumb"/>
+	</association>
+	
+  </resultMap>
+  <sql id="Base_Column_List" >
+    collect.id, collect.cid, collect.sid, collect.create_time
+  </sql>
+  
+  <sql id="Base_Column_Student" >
+    ,student.username, student.truename , student.sex, student.mobile,student.about,student.thumb as s_thumb
+  </sql>
+  
+  <sql id="Base_Column_Course" >
+     ,course.title as c_title, course.description as c_description, course.create_time as c_create_time, course.mid as c_mid, course.click as c_click,course.thumb as c_thumb
+  </sql>
+  
+  <select id="selectAllCount" parameterType="Map"  resultType="java.lang.Integer" >
+    select count(*) from collect
+    <where>
+    <if test="cid!=null and cid!=' ' ">
+		 cid = #{cid}
+	</if>
+	<if test="sid!=null and sid!=' ' ">
+		 and sid = #{sid}
+	</if>
+	<if test="id!=null and id!=' ' ">
+		 and id = #{id}
+	</if>
+	</where>
+  </select>
+  
+  
+  <select id="selectAll" resultMap="BaseResultMap" parameterType="Map" >
+    select 
+	<include refid="Base_Column_List" />
+	<include refid="Base_Column_Student" />
+    <include refid="Base_Column_Course" />
+    from collect
+    left join student on student.id=collect.sid
+    left join course on course.id=collect.cid
+   <where>
+     <if test="cid!=null and cid!=' ' ">
+		 cid = #{cid}
+	</if>
+	<if test="sid!=null and sid!=' ' ">
+		 and sid = #{sid}
+	</if>
+	<if test="id!=null and id!=' ' ">
+		 and id = #{id}
+	</if>
+	</where>
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    <include refid="Base_Column_Student" />
+    <include refid="Base_Column_Course" />
+    from collect
+    left join student on student.id=collect.sid
+    left join course on course.id=collect.cid
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from collect
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByMap" parameterType="Map" >
+    delete from collect
+    <where>
+     <if test="cid!=null and cid!=' ' ">
+		 cid = #{cid}
+	</if>
+	<if test="sid!=null and sid!=' ' ">
+		 and sid = #{sid}
+	</if>
+	<if test="id!=null and id!=' ' ">
+		 and id = #{id}
+	</if>
+	</where>
+  </delete>
+  <insert id="insert" parameterType="com.vcourse.po.Collect" >
+    insert into collect (id, cid, sid, 
+      create_time)
+    values (#{id,jdbcType=INTEGER}, #{cid,jdbcType=INTEGER}, #{sid,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.vcourse.po.Collect" >
+    insert into collect
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="cid != null" >
+        cid,
+      </if>
+      <if test="sid != null" >
+        sid,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="cid != null" >
+        #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="sid != null" >
+        #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.vcourse.po.Collect" >
+    update collect
+    <set >
+      <if test="cid != null" >
+        cid = #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="sid != null" >
+        sid = #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.vcourse.po.Collect" >
+    update collect
+    set cid = #{cid,jdbcType=INTEGER},
+      sid = #{sid,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

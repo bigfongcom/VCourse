@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.vcourse.mapper.VrecordMapper" >
+  <resultMap id="BaseResultMap" type="com.vcourse.po.Vrecord" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="v_id" property="vId" jdbcType="INTEGER" />
+    <result column="v_cid" property="vCid" jdbcType="INTEGER" />
+    <result column="v_sid" property="vSid" jdbcType="INTEGER" />
+    <result column="v_create_time" property="vCreateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, v_id, v_cid, v_sid, v_create_time
+  </sql>
+  
+    <select id="selectAllCount" parameterType="Map"  resultType="java.lang.Integer" >
+    select count(*) from vrecord
+    <where>
+    <if test="cid!=null and cid!=' ' ">
+		 v_cid = #{cid}
+	</if>
+	<if test="sid!=null and sid!=' ' ">
+		 and v_sid = #{sid}
+	</if>
+	<if test="vid!=null and vid!=' ' ">
+		 and v_id = #{vid}
+	</if>
+	</where>
+  </select>
+  
+  
+  <select id="selectAll" resultMap="BaseResultMap" parameterType="Map" >
+    select 
+	<include refid="Base_Column_List" />
+    from vrecord
+   <where>
+    <if test="cid!=null and cid!=' ' ">
+		 v_cid = #{cid}
+	</if>
+	<if test="sid!=null and sid!=' ' ">
+		 and v_sid = #{sid}
+	</if>
+	<if test="vid!=null and vid!=' ' ">
+		 and v_id = #{vid}
+	</if>
+	</where>
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from vrecord
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from vrecord
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByMap" parameterType="Map" >
+    delete from vrecord
+    <where>
+    <if test="cid!=null and cid!=' ' ">
+		 v_cid = #{cid}
+	</if>
+	<if test="sid!=null and sid!=' ' ">
+		 and v_sid = #{sid}
+	</if>
+	<if test="vid!=null and vid!=' ' ">
+		 and v_id = #{vid}
+	</if>
+	<if test="id!=null and id!=' ' ">
+		 and id = #{id}
+	</if>
+	</where>
+  </delete>
+  <insert id="insert" parameterType="com.vcourse.po.Vrecord" >
+    insert into vrecord (id, v_id, v_cid, 
+      v_sid, v_create_time)
+    values (#{id,jdbcType=INTEGER}, #{vId,jdbcType=INTEGER}, #{vCid,jdbcType=INTEGER}, 
+      #{vSid,jdbcType=INTEGER}, #{vCreateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.vcourse.po.Vrecord" >
+    insert into vrecord
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="vId != null" >
+        v_id,
+      </if>
+      <if test="vCid != null" >
+        v_cid,
+      </if>
+      <if test="vSid != null" >
+        v_sid,
+      </if>
+      <if test="vCreateTime != null" >
+        v_create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="vId != null" >
+        #{vId,jdbcType=INTEGER},
+      </if>
+      <if test="vCid != null" >
+        #{vCid,jdbcType=INTEGER},
+      </if>
+      <if test="vSid != null" >
+        #{vSid,jdbcType=INTEGER},
+      </if>
+      <if test="vCreateTime != null" >
+        #{vCreateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.vcourse.po.Vrecord" >
+    update vrecord
+    <set >
+      <if test="vId != null" >
+        v_id = #{vId,jdbcType=INTEGER},
+      </if>
+      <if test="vCid != null" >
+        v_cid = #{vCid,jdbcType=INTEGER},
+      </if>
+      <if test="vSid != null" >
+        v_sid = #{vSid,jdbcType=INTEGER},
+      </if>
+      <if test="vCreateTime != null" >
+        v_create_time = #{vCreateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.vcourse.po.Vrecord" >
+    update vrecord
+    set v_id = #{vId,jdbcType=INTEGER},
+      v_cid = #{vCid,jdbcType=INTEGER},
+      v_sid = #{vSid,jdbcType=INTEGER},
+      v_create_time = #{vCreateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

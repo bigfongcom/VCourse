@@ -1,0 +1,7 @@
+1.get提交controller接收参数乱码问题
+参考：http://www.cnblogs.com/liukemng/p/4178882.html
+
+2.post提交controller接收中文正常存数据库乱码
+解决方法:
+修改applicationContext.xml链接数据库方式
+<property name="url" value="jdbc:mysql://localhost:3306/java_vcourse?useUnicode=true&amp;characterEncoding=UTF-8"> </property>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.vcourse.mapper.CommentMapper" >
+  <resultMap id="BaseResultMap" type="com.vcourse.po.Comment" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="sid" property="sid" jdbcType="INTEGER" />
+    <result column="c_mid" property="mid" jdbcType="INTEGER" />
+    <result column="courseid" property="courseid" jdbcType="INTEGER" />
+    <result column="qustion" property="qustion" jdbcType="VARCHAR" />
+    <result column="qustion_time" property="qustionTime" jdbcType="TIMESTAMP" />
+    <result column="answer" property="answer" jdbcType="VARCHAR" />
+    <result column="answer_time" property="answerTime" jdbcType="TIMESTAMP" />
+    
+   	<association property="manager"  javaType="com.vcourse.po.Manager">
+		<!-- id：关联查询用户的唯 一标识
+		column：指定唯 一标识用户信息的列
+		javaType：映射到manager的哪个属性
+		 -->
+		<id column="c_mid" property="id"/>
+		<result column="m_username" property="username"/>
+		<result column="m_nickname" property="nickname"/>
+		<result column="m_email" property="email"/>
+		<result column="m_thumb" property="thumb"/>
+		<result column="m_role" property="role"/>
+	</association>
+	
+	<association property="student"  javaType="com.vcourse.po.Student">
+		<id column="sid" property="id"/>
+		<result column="s_username" property="username"/>
+		<result column="s_thumb" property="thumb"/>
+	</association>
+	
+	<association property="course"  javaType="com.vcourse.po.Course">
+		<id column="courseid" property="id" />
+	    <result column="c_title" property="title"  />
+	    <result column="c_description" property="description" />
+	    <result column="c_create_time" property="createTime"  />
+	    <result column="c_mid" property="mid" />
+	    <result column="c_click" property="click"  />
+	    <result column="c_thumb" property="thumb" />
+	</association>
+	
+		
+  </resultMap>
+  <sql id="Base_Column_List" >
+    comment.id, comment.sid,comment.courseid, qustion, qustion_time, answer, answer_time
+  </sql>
+  
+  <sql id="Base_Column_Manager" >
+    ,manager.username as m_username, manager.nickname as m_nickname,  manager.email as m_email, manager.thumb as m_thumb, manager.role as m_role
+  </sql>
+  
+  <sql id="Base_Column_Student" >
+    ,student.username as s_username, student.thumb as s_thumb
+  </sql>
+  
+   <sql id="Base_Column_Course" >
+    ,course.title as c_title, course.description as c_description, course.create_time as c_create_time, course.mid as c_mid, course.click as c_click,course.thumb as c_thumb
+  </sql>
+  
+  <select id="selectAllCount" parameterType="Map"  resultType="java.lang.Integer" >
+    select count(*) from comment
+     left join course on course.id=comment.courseid
+    <where>
+    <if test="cid!=null and cid!=' ' ">
+		 courseid = #{cid}
+	</if>
+	<if test="sid!=null and sid!=' ' ">
+		 and sid = #{sid}
+	</if>
+	<if test="mid!=null and mid!=' ' ">
+		 and course.mid = #{mid}
+	</if>
+	<if test="id!=null and id!=' ' ">
+		 and id = #{id}
+	</if>
+	</where>
+  </select>
+  
+  
+  <select id="selectAll" resultMap="BaseResultMap" parameterType="Map" >
+    select 
+	<include refid="Base_Column_List" />
+	<include refid="Base_Column_Manager" />
+	<include refid="Base_Column_Student" />
+	<include refid="Base_Column_Course" />
+    from comment
+    left join student on student.id=comment.sid
+    left join course on course.id=comment.courseid
+    left join manager on manager.id=course.mid
+   <where>
+     <if test="cid!=null and cid!=' ' ">
+		 courseid = #{cid}
+	</if>
+	<if test="sid!=null and sid!=' ' ">
+		 and comment.sid = #{sid}
+	</if>
+	<if test="mid!=null and mid!=' ' ">
+		 and course.mid = #{mid}
+	</if>
+	<if test="id!=null and id!=' ' ">
+		 and comment.id = #{id}
+	</if>
+	</where>
+	order by comment.id desc
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+	<include refid="Base_Column_Manager" />
+	<include refid="Base_Column_Student" />
+	<include refid="Base_Column_Course" />
+    from comment
+    left join manager on manager.id=comment.mid
+    left join student on student.id=comment.sid
+    left join course on course.id=comment.courseid
+    where comment.id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByMap" parameterType="Map" >
+    delete from comment
+    <where>
+    <if test="cid!=null and cid!=' ' ">
+		 courseid = #{cid}
+	</if>
+	<if test="sid!=null and sid!=' ' ">
+		 and sid = #{sid}
+	</if>
+	<if test="mid!=null and mid!=' ' ">
+		 and mid = #{mid}
+	</if>
+	<if test="id!=null and id!=' ' ">
+		 and id = #{id}
+	</if>
+	</where>
+  </delete>
+  <delete id="deleteBySid" parameterType="java.lang.Integer" >
+    delete from comment
+    where sid = #{sid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.vcourse.po.Comment" >
+    insert into comment (id, sid, courseid, 
+      qustion, qustion_time, answer, 
+      answer_time)
+    values (#{id,jdbcType=INTEGER}, #{sid,jdbcType=INTEGER}, #{courseid,jdbcType=INTEGER}, 
+      #{qustion,jdbcType=VARCHAR}, #{qustionTime,jdbcType=TIMESTAMP}, #{answer,jdbcType=VARCHAR}, 
+      #{answerTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.vcourse.po.Comment" >
+    insert into comment
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="sid != null" >
+        sid,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      
+      <if test="courseid != null" >
+        courseid,
+      </if>
+      <if test="qustion != null" >
+        qustion,
+      </if>
+      <if test="qustionTime != null" >
+        qustion_time,
+      </if>
+      <if test="answer != null" >
+        answer,
+      </if>
+      <if test="answerTime != null" >
+        answer_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="sid != null" >
+        #{sid,jdbcType=INTEGER},
+      </if>
+       <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="courseid != null" >
+        #{courseid,jdbcType=INTEGER},
+      </if>
+      <if test="qustion != null" >
+        #{qustion,jdbcType=VARCHAR},
+      </if>
+      <if test="qustionTime != null" >
+        #{qustionTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="answer != null" >
+        #{answer,jdbcType=VARCHAR},
+      </if>
+      <if test="answerTime != null" >
+        #{answerTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.vcourse.po.Comment" >
+    update comment
+    <set >
+      <if test="sid != null" >
+        sid = #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="mid!=null and mid!=' ' ">
+		 mid = #{mid,jdbcType=INTEGER},
+	</if>
+      <if test="courseid != null" >
+        courseid = #{courseid,jdbcType=INTEGER},
+      </if>
+      <if test="qustion != null" >
+        qustion = #{qustion,jdbcType=VARCHAR},
+      </if>
+      <if test="qustionTime != null" >
+        qustion_time = #{qustionTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="answer != null" >
+        answer = #{answer,jdbcType=VARCHAR},
+      </if>
+      <if test="answerTime != null" >
+        answer_time = #{answerTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.vcourse.po.Comment" >
+    update comment
+    set sid = #{sid,jdbcType=INTEGER},
+      and mid = #{mid,jdbcType=INTEGER},
+      courseid = #{courseid,jdbcType=INTEGER},
+      qustion = #{qustion,jdbcType=VARCHAR},
+      qustion_time = #{qustionTime,jdbcType=TIMESTAMP},
+      answer = #{answer,jdbcType=VARCHAR},
+      answer_time = #{answerTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

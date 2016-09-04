@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.vcourse.mapper.CourseMapper" >
+  <resultMap id="BaseResultMap" type="com.vcourse.po.Course" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="click" property="click" jdbcType="INTEGER" />
+    <result column="thumb" property="thumb" jdbcType="VARCHAR" />
+    
+    <association property="manager"  javaType="com.vcourse.po.Manager">
+			<!-- id：关联查询用户的唯 一标识
+			column：指定唯 一标识用户信息的列
+			javaType：映射到manager的哪个属性
+			 -->
+			<id column="mid" property="id"/>
+			<result column="username" property="username"/>
+			<result column="nickname" property="nickname"/>
+			<result column="password" property="password"/>
+			<result column="email" property="email"/>
+			<result column="m_thumb" property="thumb"/>
+			<result column="role" property="role"/>
+		</association>
+		
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.vcourse.po.Course" extends="BaseResultMap" >
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    course.id, title, description, create_time, mid, click,course.thumb
+  </sql>
+  <sql id="Base_Column_Manager" >
+    ,username, nickname, password, email, manager.thumb as m_thumb, role
+  </sql>
+  <sql id="Blob_Column_List" >
+    content
+  </sql>
+   <select id="selectAllCount" parameterType="java.util.Map"  resultType="java.lang.Integer" >
+    select count(*) from course
+    <where>
+    <if test="mid!=null and mid!=' ' ">
+		 mid = #{mid}
+	</if>
+	<if test="title_search != null"> and course.title like #{title_search}</if> 
+	</where>
+  </select>
+  <select id="selectAll" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    <include refid="Base_Column_Manager" />
+    from course
+	left join manager on course.mid=manager.id
+	<where>
+    <if test="mid!=null and mid!=' ' ">
+		 course.mid = #{mid}
+	</if>
+	<if test="title_search != null"> and course.title like #{title_search}</if> 
+	</where>
+	<choose>
+		<when test="order_by!=null and order_by=='course_click_desc' ">
+		 order by course.click desc
+		</when>
+		<when test="order_by!=null and order_by=='course_id_asc' ">
+		 order by course.id asc
+		</when>
+		<otherwise>
+		order by id desc
+		</otherwise>
+	</choose>
+    <if test="startPos!=null and pageSize!=null">
+		limit #{startPos},#{pageSize}
+	</if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from course
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from course
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.vcourse.po.Course" >
+    insert into course
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="click != null" >
+        click,
+      </if>
+      <if test="thumb != null" >
+        thumb,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="click != null" >
+        #{click,jdbcType=INTEGER},
+      </if>
+      <if test="thumb != null" >
+        #{thumb,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.vcourse.po.Course" >
+    update course
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mid != null" >
+        mid = #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="click != null" >
+        click = #{click,jdbcType=INTEGER},
+      </if>
+      <if test="thumb != null" >
+        thumb = #{thumb,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="clickAdd" parameterType="java.lang.Integer" >
+    update course
+    <set >
+       click = click+1
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.vcourse.po.Course" >
+    update course
+    set title = #{title,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      mid = #{mid,jdbcType=INTEGER},
+      click = #{click,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.vcourse.po.Course" >
+    update course
+    set title = #{title,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      mid = #{mid,jdbcType=INTEGER},
+      click = #{click,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

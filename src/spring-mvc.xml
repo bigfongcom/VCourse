@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="    
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd  
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd  
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd  
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.2.xsd  
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd">
+
+	<!-- 以上这两个 配合 json转换器 -->
+	<context:annotation-config />
+	<mvc:annotation-driven />
+
+	<!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"
+		lazy-init="false" />
+	<!-- 另外最好还要加入DefaultAnnotationHandlerMapping，不然会被 XML或其它的映射覆盖！ -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+
+
+	<!-- 配置自动扫描的包，让其扫描 com.longhang,controller下面的所有包 -->
+
+	<context:component-scan base-package="com.vcourse.controller"></context:component-scan>
+
+	<!-- 配置视图解析器 将视图逻辑名解析为/*.jsp -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+	<!-- 对静态资源文件的访问 -->
+	<mvc:resources mapping="/Public/**" location="/Public/" />
+	<mvc:resources mapping="/Uploads/**" location="/Uploads/" />
+
+	<!-- 3.文件上传 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+	<!-- <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"> 
+		<property name="defaultEncoding" value="utf-8"></property> <property name="maxUploadSize" 
+		value="10485760000"></property> <property name="maxInMemorySize" value="40960"></property> 
+		</bean> -->
+
+	<!-- 4.配置json转换器 -->
+	<!-- 用于将对像转为JSON -->
+	<bean id="stringConverter"
+		class="org.springframework.http.converter.StringHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/plain;charset=UTF-8</value>
+				<value>text/html;charset=UTF-8</value>
+				<value>text/json;charset=UTF-8</value>
+				<value>application/json;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+	<!-- JSON转Map -->
+	<bean id="jsonConverter"
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"></bean>
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<ref bean="stringConverter" />
+				<ref bean="jsonConverter" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- 5.拦截器之 登陆拦截器 -->
+	<mvc:interceptors>
+		<!-- 公共配置截拦器 ,一般调用系统配置-->
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<mvc:exclude-mapping path="/Public/**"/>
+			<mvc:exclude-mapping path="/Uploads/**"/>
+			<bean class="com.vcourse.interceptor.CommonInterceptor"></bean>
+		</mvc:interceptor>
+		<!-- 后台登陆截拦器 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/admin/**" />
+			<mvc:mapping path="/sys/**" />
+			<bean class="com.vcourse.interceptor.LoginInterceptor">
+				<property name="allowedPass">
+					<list>
+						<value>login</value>
+						<value>dologin</value>
+						<value>logout</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:interceptor>
+		<!-- 前台用户登陆截拦器 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/User/**" />
+			<mvc:mapping path="/user/**" />
+			<bean class="com.vcourse.interceptor.UserInterceptor">
+				<property name="allowedPass">
+					<list>
+						<value>login</value>
+						<value>dologin</value>
+						<value>logout</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:interceptor>
+
+
+	</mvc:interceptors>
+</beans>
