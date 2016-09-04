@@ -1,4 +1,4 @@
-# VCourse
+# java_vcourse
 spring+springMVC+mybatis完整项目
 
 spring-4.2.4
